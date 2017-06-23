@@ -120,10 +120,6 @@
         let data_sets = [] ;
         let layername ;
 
-        var FAT = L.icon({
-            iconurl : '/Downloads/placeholder-black-shape-for-localization-on-maps (1).png',
-
-        });
 
         $.get("https://staging.vetro.io/api/network?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJuYW1lIjoidHJpYWwiLCJpZCI6MywiaWF0IjoxNDY3MjE3MzUwfQ.T7_Y-t9koaih5KDcJWMhA_JcmA4mfDysOtu-GH0d2Eo")
             .done(function (data) {
@@ -178,8 +174,8 @@
 
                                         L.geoJSON(geom[11], {
                                             style: function (feature) {
-                                                return
-                                            },icon:FAT
+                                                return{};
+                                            }
                                         }).addTo(MultiPort_container).on('click',pointClicked);
 
                                         L.geoJSON(geom[9], {
