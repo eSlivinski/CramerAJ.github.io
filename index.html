@@ -77,7 +77,7 @@
             var layerID = singleInfo.layerID;
             var geomID = singleInfo.geomID;
 
-            return $.get('http://vetrofiber.com:8082/api/network/' + planID + '/info/' + layerID + '/' + geomID  + '?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJuYW1lIjoidHJpYWwiLCJpZCI6MywiaWF0IjoxNDY3MjE3MzUwfQ.T7_Y-t9koaih5KDcJWMhA_JcmA4mfDysOtu-GH0d2Eo')
+            return $.get('http://staging.vetro.io/api/network/' + planID + '/info/' + layerID + '/' + geomID  + '?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJuYW1lIjoidHJpYWwiLCJpZCI6MywiaWF0IjoxNDY3MjE3MzUwfQ.T7_Y-t9koaih5KDcJWMhA_JcmA4mfDysOtu-GH0d2Eo')
                 .done ( function (data) {
                     console.log(data);
 
@@ -125,7 +125,7 @@
 
         });
 
-        $.get("http://vetrofiber.com:8082/api/network?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJuYW1lIjoidHJpYWwiLCJpZCI6MywiaWF0IjoxNDY3MjE3MzUwfQ.T7_Y-t9koaih5KDcJWMhA_JcmA4mfDysOtu-GH0d2Eo")
+        $.get("http://staging.vetro.io/api/network?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJuYW1lIjoidHJpYWwiLCJpZCI6MywiaWF0IjoxNDY3MjE3MzUwfQ.T7_Y-t9koaih5KDcJWMhA_JcmA4mfDysOtu-GH0d2Eo")
             .done(function (data) {
                 console.log(data);
                 for (let i = 0; i < data.length; i++) {
@@ -152,7 +152,7 @@
 
                             if (project.plans[k].as_built = true) {
 
-                                $.get("http://vetrofiber.com:8082/api/network/" + project.plans[k].id + "/geometries/?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJuYW1lIjoidHJpYWwiLCJpZCI6MywiaWF0IjoxNDY3MjE3MzUwfQ.T7_Y-t9koaih5KDcJWMhA_JcmA4mfDysOtu-GH0d2Eo")
+                                $.get("http://staging.vetro.io/api/network/" + project.plans[k].id + "/geometries/?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJuYW1lIjoidHJpYWwiLCJpZCI6MywiaWF0IjoxNDY3MjE3MzUwfQ.T7_Y-t9koaih5KDcJWMhA_JcmA4mfDysOtu-GH0d2Eo")
                                     .done(function (geom) {
 
                                         L.geoJSON(geom[14], {
