@@ -1,1 +1,265 @@
-HELLO
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta charset='utf-8'/>
+    <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no'/>
+    <link href="../leaflet.css" rel='stylesheet'/>
+    <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.3/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.0.3/dist/leaflet-src.js"></script>
+    <script src="https://unpkg.com/esri-leaflet@2.0.8"></script>
+    <link rel="stylesheet" href="https://unpkg.com/esri-leaflet-geocoder@2.2.4/dist/esri-leaflet-geocoder.css">
+    <script src="https://unpkg.com/esri-leaflet-geocoder@2.2.4"></script>
+    <style>
+
+        #map {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            top:0;
+            bottom:0;
+            right:0;
+            left:0;
+        }
+
+
+    </style>
+
+</head>
+<body>
+
+<script src="../jquery-3.2.1.min.js"></script>
+<script src="../leaflet-src.js"></script>
+<script src="../leaflet.js"></script>
+
+<!-- Load Leaflet from CDN-->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.3/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.0.3/dist/leaflet-src.js"></script>
+
+<!-- Load Esri Leaflet from CDN -->
+<script src="https://unpkg.com/esri-leaflet@2.0.8"></script>
+
+<!-- Load Esri Leaflet Geocoder from CDN -->
+<link rel="stylesheet" href="https://unpkg.com/esri-leaflet-geocoder@2.2.4/dist/esri-leaflet-geocoder.css">
+<script src="https://unpkg.com/esri-leaflet-geocoder@2.2.4"></script>
+
+<div id='map' class="leaflet-container">
+
+    <script>
+
+        //Creates the basemap
+        var map = L.map('map').setView([43.6515, -70.2553], 14);
+        //Portland 43.6515, -70.2553
+
+        var BaseMap =   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://osm.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        // Additional Basemaps
+        var Stamen_Terrain = L.tileLayer('http://stamen-tiles-{s}.a.ssl.fastly.net/terrain/{z}/{x}/{y}.{ext}', {
+            attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>,' +
+            ' <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; ' +
+            '<a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+            subdomains: 'abcd',
+            minZoom: 0,
+            maxZoom: 18,
+            ext: 'png'
+        });
+        var Hydda_Full = L.tileLayer('http://{s}.tile.openstreetmap.se/hydda/full/{z}/{x}/{y}.png', {
+            maxZoom: 18,
+            attribution: 'Tiles courtesy of <a href="http://openstreetmap.se/" target="_blank">OpenStreetMap Sweden</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        });
+
+        var pointClicked = function (e) {
+            var singleInfo = e.layer.feature.properties;
+            var planID = singleInfo.planID;
+            var layerID = singleInfo.layerID;
+            var geomID = singleInfo.geomID;
+
+            return $.get('http://vetrofiber.com:8082/api/network/' + planID + '/info/' + layerID + '/' + geomID  + '?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJuYW1lIjoidHJpYWwiLCJpZCI6MywiaWF0IjoxNDY3MjE3MzUwfQ.T7_Y-t9koaih5KDcJWMhA_JcmA4mfDysOtu-GH0d2Eo')
+                .done ( function (data) {
+                    console.log(data);
+
+                    console.log(data.attributes);
+                    let attribute_name = [];
+                    let attribute_value = [];
+
+                    let attribute = data.attributes;
+
+                    for (let i = 0; i < attribute.length; i++) {
+
+                        if (attribute[i].name != null){
+                            attribute_name.push(attribute[i].name);
+                        }
+                        if (attribute[i].value != null){
+                            attribute_value.push(attribute[i].value);
+                        }
+                    }
+                    console.log(data);
+                    console.log(e);
+                    e.layer.bindPopup( "Attributes:" + "</br>" + "Names:" + JSON.stringify(attribute_name)+ "</br>"+ "Values:"+JSON.stringify(attribute_value)).openPopup();
+
+                });
+        };
+
+        //Containers, this will be replaced
+
+        let B_container = L.layerGroup([]);
+        let L_container = L.layerGroup([]);
+        let D_container = L.layerGroup([]);
+        let CO_container = L.layerGroup([]);
+
+        let Splice_container = L.layerGroup([]);
+        let Pigtail_container = L.layerGroup([]);
+        let MultiPort_container = L.layerGroup([]);
+        let FAT_container = L.layerGroup([]);
+
+        let projects = [];
+        let Plans = [] ;
+        let data_sets = [] ;
+        let layername ;
+
+        var FAT = L.icon({
+            iconurl : '/Downloads/placeholder-black-shape-for-localization-on-maps (1).png',
+
+        });
+
+        $.get("http://vetrofiber.com:8082/api/network?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJuYW1lIjoidHJpYWwiLCJpZCI6MywiaWF0IjoxNDY3MjE3MzUwfQ.T7_Y-t9koaih5KDcJWMhA_JcmA4mfDysOtu-GH0d2Eo")
+            .done(function (data) {
+                console.log(data);
+                for (let i = 0; i < data.length; i++) {
+
+                    data_sets.push(data[i].projects);
+                    console.log(data_sets);
+                    console.log("DATA SET:"+(i+1));
+
+                    for (let j = 0; j < data_sets[i].length; j++) {
+
+                        let project = data_sets[i][j];
+                        projects.push(project);
+                        console.log(project);
+
+                        console.log("PROJECT: "+(j+1));
+                        //newLayerGroup(layername);
+                        layername = project.name;
+
+                        for (let k = 0; k < project.plans.length; k++) {
+                            console.log(project.plans);
+                            console.log("PLAN: "+ (k+1));
+                            Plans.push(project.plans[k]);
+                            //Plans.push(project.plans[k]);
+
+                            if (project.plans[k].as_built = true) {
+
+                                $.get("http://vetrofiber.com:8082/api/network/" + project.plans[k].id + "/geometries/?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJuYW1lIjoidHJpYWwiLCJpZCI6MywiaWF0IjoxNDY3MjE3MzUwfQ.T7_Y-t9koaih5KDcJWMhA_JcmA4mfDysOtu-GH0d2Eo")
+                                    .done(function (geom) {
+
+                                        L.geoJSON(geom[14], {
+                                            style: function (feature) {
+                                                return {color: "#ff0000"};
+                                            }
+                                        }).addTo(B_container).on('click',pointClicked);
+                                        L.geoJSON(geom[15], {
+                                            style: function (feature) {
+                                                return {color: "#0078A8"};
+                                            }
+                                        }).addTo(L_container).on('click',pointClicked);
+                                        L.geoJSON(geom[17], {
+                                            style: function (feature) {
+                                                return {color: "#3e8f3e"};
+                                            }
+                                        }).addTo(D_container).on('click',pointClicked);
+                                        L.geoJSON(geom[16], {
+                                            style: function (feature) {
+                                                return {color: "#eb9316"};
+                                            }
+                                        }).addTo(Pigtail_container).on('click',pointClicked);
+
+                                        L.geoJSON(geom[11], {
+                                            style: function (feature) {
+                                                return
+                                            },icon:FAT
+                                        }).addTo(MultiPort_container).on('click',pointClicked);
+
+                                        L.geoJSON(geom[9], {
+                                            style: function (feature) {
+                                                return {};
+                                            }
+                                        }).addTo(FAT_container).on('click',pointClicked);
+
+                                        L.geoJSON(geom[19], {
+                                            style: function (feature) {
+                                                return {};
+                                            }
+                                        }).addTo(Splice_container).on('click',pointClicked);
+
+                                        L.geoJSON(geom[21], {
+                                            style: function (feature) {
+                                                return {};
+                                            }
+                                        }).addTo(CO_container).on('click',pointClicked);
+
+                                    });
+                                //  Plans.push(project.plans[k]);
+                                //  });
+                            }
+                        }
+                    }
+                }
+
+                console.log("FINISHED");
+                console.log(Plans);
+
+            });
+
+        let Backbone_overlay = {
+            "Backbone" : B_container,
+            "Lateral" : L_container,
+            "Drop" : D_container,
+            "Pigtail" : Pigtail_container,
+
+        };
+        let CO_overlay = {
+            "CO" : CO_container,
+            "Splice" : Splice_container,
+            "MultiPort": MultiPort_container,
+            "FAT" : FAT_container,
+        };
+        let Basemaps = {
+            "BaseMap" : BaseMap,
+            "Terrain" : Stamen_Terrain,
+            "Cleaned" : Hydda_Full,
+        };
+
+        L.control.layers(Basemaps,null).addTo(map);
+        L.control.layers(null,Backbone_overlay).addTo(map);
+        L.control.layers(null,CO_overlay).addTo(map);
+
+        //Search Controls
+
+        var arcgisOnline = L.esri.Geocoding.arcgisOnlineProvider();
+
+        var searchControl = L.esri.Geocoding.geosearch({
+            providers: [
+                arcgisOnline,
+                L.esri.Geocoding.featureLayerProvider({
+                    url: 'https://services.arcgis.com/uCXeTVveQzP4IIcx/arcgis/rest/services/gisday/FeatureServer/0/',
+                    searchFields: ['Name', 'Organization'],
+                    label: 'GIS Day Events',
+                    bufferRadius: 5000,
+                    formatSuggestion: function(feature){
+                        return feature.properties.Name + ' - ' + feature.properties.Organization;
+                    }
+                })
+            ]
+
+        }).addTo(map);
+
+    </script>
+
+</div>
+
+</body>
+
+</html>
