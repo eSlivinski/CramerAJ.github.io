@@ -8,5 +8,23 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="jQuery UI-1.10.2" level="application" />
+    <orderEntry type="library" name="jQuery-2.0.0" level="application" />
+    <orderEntry type="library" name="leaflet-areaselect-DefinitelyTyped" level="application" />
+    <orderEntry type="library" name="leaflet-curve-DefinitelyTyped" level="application" />
+    <orderEntry type="library" name="leaflet-DefinitelyTyped" level="application" />
+    <orderEntry type="library" name="leaflet-draw-DefinitelyTyped" level="application" />
+    <orderEntry type="library" name="leaflet-editable-DefinitelyTyped" level="application" />
+    <orderEntry type="library" name="leaflet-fullscreen-DefinitelyTyped" level="application" />
+    <orderEntry type="library" name="leaflet-geocoder-mapzen-DefinitelyTyped" level="application" />
+    <orderEntry type="library" name="leaflet-imageoverlay-rotated-DefinitelyTyped" level="application" />
+    <orderEntry type="library" name="leaflet-label-DefinitelyTyped" level="application" />
+    <orderEntry type="library" name="leaflet-polylinedecorator-DefinitelyTyped" level="application" />
+    <orderEntry type="library" name="leaflet.awesome-markers-DefinitelyTyped" level="application" />
+    <orderEntry type="library" name="leaflet.fullscreen-DefinitelyTyped" level="application" />
+    <orderEntry type="library" name="leaflet.gridlayer.googlemutant-DefinitelyTyped" level="application" />
+    <orderEntry type="library" name="leaflet.locatecontrol-DefinitelyTyped" level="application" />
+    <orderEntry type="library" name="leaflet.markercluster-DefinitelyTyped" level="application" />
+    <orderEntry type="library" name="leaflet.pm-DefinitelyTyped" level="application" />
   </component>
 </module>
