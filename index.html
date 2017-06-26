@@ -11,7 +11,6 @@
     <link rel="stylesheet" href="https://unpkg.com/esri-leaflet-geocoder@2.2.4/dist/esri-leaflet-geocoder.css">
     <script src="https://unpkg.com/esri-leaflet-geocoder@2.2.4"></script>
     <style>
-
         #map {
             position: absolute;
             width: 100%;
@@ -21,9 +20,7 @@
             bottom:0;
             right:0;
             left:0;
-
         }
-
     </style>
 
 </head>
@@ -71,13 +68,18 @@
             attribution: 'Tiles courtesy of <a href="http://openstreetmap.se/" target="_blank">OpenStreetMap Sweden</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
         }).addTo(map);
 
+
         var pointClicked = function (e) {
             var singleInfo = e.layer.feature.properties;
             var planID = singleInfo.planID;
             var layerID = singleInfo.layerID;
             var geomID = singleInfo.geomID;
+            var customOptions = {
+                'maxWidth': '500',
+                'className': 'custom'
+            };
 
-            return $.get('https://staging.vetro.io/api/network/' + planID + '/info/' + layerID + '/' + geomID  + '?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJuYW1lIjoidHJpYWwiLCJpZCI6MywiaWF0IjoxNDY3MjE3MzUwfQ.T7_Y-t9koaih5KDcJWMhA_JcmA4mfDysOtu-GH0d2Eo')
+            return $.get('http://vetrofiber.com:8082/api/network/' + planID + '/info/' + layerID + '/' + geomID  + '?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJuYW1lIjoidHJpYWwiLCJpZCI6MywiaWF0IjoxNDY3MjE3MzUwfQ.T7_Y-t9koaih5KDcJWMhA_JcmA4mfDysOtu-GH0d2Eo')
                 .done ( function (data) {
                     console.log(data);
 
@@ -98,7 +100,7 @@
                     }
                     console.log(data);
                     console.log(e);
-                    e.layer.bindPopup( "Attributes:" + "</br>" + "Names:" + JSON.stringify(attribute_name)+ "</br>"+ "Values:"+JSON.stringify(attribute_value)).openPopup();
+                    e.layer.bindPopup("Attributes:" + "</br>" + "Names:" + JSON.stringify(attribute_name)+ "</br>"+ "Values:"+JSON.stringify(attribute_value)).openPopup();
 
                 });
         };
@@ -114,6 +116,7 @@
         let Pigtail_container = L.layerGroup([]);
         let MultiPort_container = L.layerGroup([]);
         let FAT_container = L.layerGroup([]);
+        let Service_container = L.layerGroup([]);
 
         let projects = [];
         let Plans = [] ;
@@ -123,7 +126,7 @@
 
         var geojsonCO = {
             radius: 8,
-            fillColor: "#0078A8",
+            fillColor: "#000080",
             color: "#000",
             weight: 1,
             opacity: 1,
@@ -153,7 +156,16 @@
             opacity: 1,
             fillOpacity: 0.8
         };
-        $.get("https://staging.vetro.io/api/network?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJuYW1lIjoidHJpYWwiLCJpZCI6MywiaWF0IjoxNDY3MjE3MzUwfQ.T7_Y-t9koaih5KDcJWMhA_JcmA4mfDysOtu-GH0d2Eo")
+        var geojsonService = {
+            radius: 8,
+            fillColor: "#ffA500",
+            color: "#000",
+            weight: 1,
+            opacity: 1,
+            fillOpacity: 0.8
+        };
+
+        $.get("http://vetrofiber.com:8082/api/network?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJuYW1lIjoidHJpYWwiLCJpZCI6MywiaWF0IjoxNDY3MjE3MzUwfQ.T7_Y-t9koaih5KDcJWMhA_JcmA4mfDysOtu-GH0d2Eo")
             .done(function (data) {
                 console.log(data);
                 for (let i = 0; i < data.length; i++) {
@@ -180,7 +192,7 @@
 
                             if (project.plans[k].as_built = true) {
 
-                                $.get("https://staging.vetro.io/api/network/" + project.plans[k].id + "/geometries/?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJuYW1lIjoidHJpYWwiLCJpZCI6MywiaWF0IjoxNDY3MjE3MzUwfQ.T7_Y-t9koaih5KDcJWMhA_JcmA4mfDysOtu-GH0d2Eo")
+                                $.get("http://vetrofiber.com:8082/api/network/" + project.plans[k].id + "/geometries/?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJuYW1lIjoidHJpYWwiLCJpZCI6MywiaWF0IjoxNDY3MjE3MzUwfQ.T7_Y-t9koaih5KDcJWMhA_JcmA4mfDysOtu-GH0d2Eo")
                                     .done(function (geom) {
 
                                         L.geoJSON(geom[14], {
@@ -204,30 +216,31 @@
                                             }
                                         }).addTo(Pigtail_container).on('click',pointClicked);
 
-                                        L.geoJson(geom[11], {
-                                            pointToLayer: function (feature,latlng){
-                                                return L.circleMarker(latlng,geojsonMultiPort);
-                                            }
-                                        }).addTo(MultiPort_container).on('click',pointClicked);
-
                                         L.geoJSON(geom[9], {
                                             pointToLayer: function (feature,latlng){
                                                 return L.circleMarker(latlng,geojsonFAT);
                                             }
                                         }).addTo(FAT_container).on('click',pointClicked);
-
+                                        L.geoJson(geom[11], {
+                                            pointToLayer: function (feature,latlng){
+                                                return L.circleMarker(latlng,geojsonMultiPort);
+                                            }
+                                        }).addTo(MultiPort_container).on('click',pointClicked);
                                         L.geoJSON(geom[19], {
                                             pointToLayer: function (feature,latlng){
                                                 return L.circleMarker(latlng,geojsonSplice);
                                             }
                                         }).addTo(Splice_container).on('click',pointClicked);
-
                                         L.geoJSON(geom[21], {
                                             pointToLayer: function (feature,latlng){
                                                 return L.circleMarker(latlng,geojsonCO);
                                             }
                                         }).addTo(CO_container).on('click',pointClicked);
-
+                                        L.geoJSON(geom[26], {
+                                            pointToLayer: function (feature,latlng){
+                                                return L.circleMarker(latlng,geojsonService);
+                                            }
+                                        }).addTo(Service_container).on('click',pointClicked);
                                     });
 
                                 //  Plans.push(project.plans[k]);
@@ -243,6 +256,7 @@
 
             });
 
+
         let Backbone_overlay = {
             "Backbone" : B_container,
             "Lateral" : L_container,
@@ -255,6 +269,7 @@
             "Splice" : Splice_container,
             "MultiPort": MultiPort_container,
             "FAT" : FAT_container,
+            "Service Location": Service_container,
         };
         let Basemaps = {
             "BaseMap" : BaseMap,
