@@ -26,6 +26,36 @@
             top:0;
             left:0;
         }
+        #headerImage{
+            position: absolute;
+            width: 80%;
+            height: 5%;
+            top:0;
+            left:0;
+            z-index: 1;
+        }
+        #quickplanroute{
+            position: absolute;
+            width: 25%;
+            height:5%;
+            top:0;
+            right:0;
+        }
+        .gisButton{
+            height: 65%;
+            width: 30%;
+            border-radius: 10%;
+            background-color: deepskyblue;
+            font-size: small;
+        }
+        .gisSearch {
+
+            height: 65%;
+            width: 60%;
+            border-bottom-color: #222222;
+            border-radius: 2px;
+            font-size: small;
+        }
     </style>
 
 </head>
@@ -53,6 +83,24 @@
 
     </div>
 
+    <div id="quickplanroute" >
+
+        <input type = "text" class="gisSearch" id="mySearch" value="" placeholder="GIS Route: 10 Somerset" >
+        <button class="gisButton" onclick="myFunction(); alert('Internal API, cant produce Quick Plan')" >Quick Plan!</button>
+        <script>
+            function myFunction() {
+                var route = document.getElementById("mySearch").value;
+                $.get('http://vetrofiber.com:8082/api/gis/geocode/'+route+'?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJuYW1lIjoidHJpYWwiLCJpZCI6MywiaWF0IjoxNDY3MjE3MzUwfQ.T7_Y-t9koaih5KDcJWMhA_JcmA4mfDysOtu-GH0d2Eo')
+                    .done(function (data) {
+                        console.log(data);
+                        L.geoJSON(data,{
+                        }).addTo(map)
+                    });
+                var alert ="Internal API, cant produce Quick Plan";
+                document.getElementById("mySearch").innerHTML = alert;
+            }
+        </script>
+    </div>
 
     <div id='map' class="leaflet-container">
 
