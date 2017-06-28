@@ -3,13 +3,23 @@
 <head>
     <meta charset='utf-8'/>
     <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no'/>
-    <link href="./leaflet.css" rel='stylesheet'/>
-    <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.7.3/css/bootstrap-select.min.css" />
+    <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.2/leaflet.css" />
+
+
+    <!-- Load Leaflet from CDN-->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.3/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.0.3/dist/leaflet-src.js"></script>
+
+    <!-- Load Esri Leaflet from CDN -->
     <script src="https://unpkg.com/esri-leaflet@2.0.8"></script>
+
+    <!-- Load Esri Leaflet Geocoder from CDN -->
     <link rel="stylesheet" href="https://unpkg.com/esri-leaflet-geocoder@2.2.4/dist/esri-leaflet-geocoder.css">
     <script src="https://unpkg.com/esri-leaflet-geocoder@2.2.4"></script>
+
+
     <style>
         #map {
             position: absolute;
@@ -19,31 +29,16 @@
             right:0;
             left:0;
         }
-        #headerImage{
-            position: absolute;
-            width: 100%;
-            height: 5%;
-            top:0;
-            left:0;
-        }
-        #headerImage{
-            position: absolute;
-            width: 50%;
-            height: 5%;
-            top:0;
-            left:0;
-            z-index: 1;
-        }
         #quickplanroute{
             position: absolute;
-            width: 50%;
+            width: 40%;
             height:5%;
             top:0;
             right:0;
         }
         .gisButton{
             height: 65%;
-            width: 20%;
+            width: 22%;
             right:0;
             border-radius: 10%;
             background-color: deepskyblue;
@@ -58,6 +53,27 @@
             font-size: 100%;
             right:0;
         }
+
+        #sidebar{
+            height:85%;
+            width:65%;
+            z-index: 200;
+        }
+
+        .container{
+            width:60%;
+            position: absolute;
+            height: 5%;
+            top:0;
+            left:0;
+            z-index: 1;
+            background-image: url("logo_full.png");
+            background-size: cover;
+            background-repeat:no-repeat;
+            background-position: 50% 50%;
+        }
+
+
     </style>
 
 </head>
@@ -67,298 +83,407 @@
 <script src="./leaflet-src.js"></script>
 <script src="./leaflet.js"></script>
 
-<!-- Load Leaflet from CDN-->
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.3/dist/leaflet.css" />
-<script src="https://unpkg.com/leaflet@1.0.3/dist/leaflet-src.js"></script>
+<script src="./leaflet-sidebar/src/L.Control.Sidebar.js"></script>
+<link rel="stylesheet" href="./leaflet-sidebar/src/L.Control.Sidebar.css"/>
 
-<!-- Load Esri Leaflet from CDN -->
-<script src="https://unpkg.com/esri-leaflet@2.0.8"></script>
+<div id="headerImage" class="container">
 
-<!-- Load Esri Leaflet Geocoder from CDN -->
-<link rel="stylesheet" href="https://unpkg.com/esri-leaflet-geocoder@2.2.4/dist/esri-leaflet-geocoder.css">
-<script src="https://unpkg.com/esri-leaflet-geocoder@2.2.4"></script>
+</div><!--
+<div id="quickplanroute" >
 
-<div id="Viewer">
-
-    <div id="headerImage">
-    <img src="logo_full.png" style = "width: 95%; height: 100%; z-index: 1;">
-
-    </div>
-<!--
-    <div id="quickplanroute" >
-
-        <input type = "text" class="gisSearch" id="mySearch" value="" placeholder="GIS Route: 10 Somerset" >
-        <button class="gisButton" onclick="myFunction(); alert('Internal API, cant produce Quick Plan')" >Quick Plan!</button>
-        <script>
-            function myFunction() {
-                var route = document.getElementById("mySearch").value;
-                $.get('http://vetrofiber.com:8082/api/gis/geocode/'+route+'?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJuYW1lIjoidHJpYWwiLCJpZCI6MywiaWF0IjoxNDY3MjE3MzUwfQ.T7_Y-t9koaih5KDcJWMhA_JcmA4mfDysOtu-GH0d2Eo')
-                    .done(function (data) {
-                        console.log(data);
-                        L.geoJSON(data,{
-                        }).addTo(map)
-                    });
-                var alert ="Internal API, cant produce Quick Plan";
-                document.getElementById("mySearch").innerHTML = alert;
-            }
-        </script>
-    </div>
-    -->
-
-    <div id='map' class="leaflet-container">
-
+    <input type = "text" class="gisSearch" id="mySearch" value="" placeholder="GIS Route: 10 Somerset" >
+    <button class="gisButton" onclick="myFunction(); alert('Internal API, cant produce Quick Plan')" >Route</button>
     <script>
-
-        //Creates the basemap
-        var map = L.map('map').setView([43.6515, -70.2553], 14);
-        //Portland 43.6515, -70.2553
-        var BaseMap =   L.tileLayer( "https://{s}.tiles.mapbox.com/v3/nbtsolutions.ilgj9mfe/{z}/{x}/{y}.png", {
-            subdomains: 'abcd',
-            maxZoom: 19
-        }).addTo(map);
-
-        // Additional Basemaps
-
-        var Satellite = L.tileLayer("https://{s}.tiles.mapbox.com/v3/nbtsolutions.jbn3ge2f/{z}/{x}/{y}.png", {
-            subdomains: 'abcd',
-            maxZoom: 19
-        });
-
-        var pointClicked = function (e) {
-            var singleInfo = e.layer.feature.properties;
-            var planID = singleInfo.planID;
-            var layerID = singleInfo.layerID;
-            var geomID = singleInfo.geomID;
-            var customOptions = {
-                'maxWidth': '500',
-                'className': 'custom'
-            };
-
-            return $.get('https://staging.vetro.io/api/network/' + planID + '/info/' + layerID + '/' + geomID  + '?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJuYW1lIjoidHJpYWwiLCJpZCI6MywiaWF0IjoxNDY3MjE3MzUwfQ.T7_Y-t9koaih5KDcJWMhA_JcmA4mfDysOtu-GH0d2Eo')
-                .done ( function (data) {
+        function myFunction() {
+            var route = document.getElementById("mySearch").value;
+            $.get('http://vetrofiber.com:8082/api/gis/geocode/'+route+'?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJuYW1lIjoidHJpYWwiLCJpZCI6MywiaWF0IjoxNDY3MjE3MzUwfQ.T7_Y-t9koaih5KDcJWMhA_JcmA4mfDysOtu-GH0d2Eo')
+                .done(function (data) {
                     console.log(data);
-
-                    console.log(data.attributes);
-                    let attribute_name = [];
-                    let attribute_value = [];
-
-                    let attribute = data.attributes;
-
-                    for (let i = 0; i < attribute.length; i++) {
-
-                        if (attribute[i].name != null){
-                            attribute_name.push(attribute[i].name);
-                        }
-                        if (attribute[i].value != null){
-                            attribute_value.push(attribute[i].value);
-                        }
-                    }
-                    console.log(data);
-                    console.log(e);
-                    e.layer.bindPopup("Attributes:" + "</br>" + "Names:" + JSON.stringify(attribute_name)+ "</br>"+ "Values:"+JSON.stringify(attribute_value)).openPopup();
-
+                    L.geoJSON(data,{
+                    }).addTo(map)
                 });
+            var alert ="Internal API, cant produce Quick Plan";
+            document.getElementById("mySearch").innerHTML = alert;
+        }
+    </script>
+</div>-->
+
+<div id='map' class="leaflet-container"></div>
+
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.7.3/js/bootstrap-select.min.js"></script>
+
+<div id="sidebar" style="height: 70%;">
+    <h2>Network Geometries</h2>
+    <button id="sidebarToggle" onclick="sidebar.hide()">X</button>
+    <div class="project_list">
+
+        <h3>Projects</h3>
+        <ol id="testing" style="font-size: medium"></ol>
+
+        <div class="dropdown">
+
+            <select id="line-geometries" class="selectpicker" onchange="addLines()" multiple name="test multiselect" title="Line Geometries"  >
+                <option value ="1" id = "Backbone" >Backbone</option>
+                <option value ="2" id = "Lateral" >Lateral</option>
+                <option value ="3" id = "Drop" >Drop</option>
+            </select>
+
+            <select id="markers" class="selectpicker" onchange="addMarkers()" name="test multiselect" title="Markers" multiple >
+                <option value ="1" id = "CO" >CO</option>
+                <option value ="2" id = "Splice" >Splice</option>
+                <option value ="3" id = "MultiPort" >MultiPort</option>
+                <option value ="4" id = "FAT" >FAT</option>
+                <option value ="5" id = "ServiceLocation" >Service Location</option>
+            </select>
+
+        </div>
+    </div>
+</div>
+<script>
+
+    //Creates the basemap
+    var map = L.map('map').setView([43.6515, -70.2553], 14);
+    //Portland 43.6515, -70.2553
+    var BaseMap =   L.tileLayer( "https://{s}.tiles.mapbox.com/v3/nbtsolutions.ilgj9mfe/{z}/{x}/{y}.png", {
+        subdomains: 'abcd',
+        maxZoom: 19
+    }).addTo(map);
+    // Additional Basemaps
+    var Satellite = L.tileLayer("https://{s}.tiles.mapbox.com/v3/nbtsolutions.jbn3ge2f/{z}/{x}/{y}.png", {
+        subdomains: 'abcd',
+        maxZoom: 19
+    });
+    //Sidebar
+    var sidebar = L.control.sidebar('sidebar', {
+        position: 'left'
+    });
+    map.addControl(sidebar);
+    map.on('click', function () {
+        sidebar.show();
+    });
+
+    sidebar.on('show', function () {
+        console.log('Sidebar will be visible.');
+    });
+    sidebar.on('shown', function () {
+        console.log('Sidebar is visible.');
+    });
+    sidebar.on('hide', function () {
+        console.log('Sidebar will be hidden.');
+    });
+    sidebar.on('hidden', function () {
+        console.log('Sidebar is hidden.');
+    });
+    L.DomEvent.on(sidebar.getCloseButton(), 'click', function () {
+        console.log('Close button clicked.');
+    });
+    var pointClicked = function (e) {
+        var singleInfo = e.layer.feature.properties;
+        var planID = singleInfo.planID;
+        var layerID = singleInfo.layerID;
+        var geomID = singleInfo.geomID;
+        var customOptions = {
+            'maxWidth': '500',
+            'className': 'custom'
         };
 
-        //Containers, this will be replaced
-
-        let B_container = L.layerGroup([]);
-        let L_container = L.layerGroup([]);
-        let D_container = L.layerGroup([]);
-        let CO_container = L.layerGroup([]);
-
-        let Splice_container = L.layerGroup([]);
-        let Pigtail_container = L.layerGroup([]);
-        let MultiPort_container = L.layerGroup([]);
-        let FAT_container = L.layerGroup([]);
-        let Service_container = L.layerGroup([]);
-
-        let projects = [];
-        let Plans = [] ;
-        let data_sets = [] ;
-        let layername ;
-
-
-        var geojsonCO = {
-            radius: 8,
-            fillColor: "#000080",
-            color: "#000",
-            weight: 1,
-            opacity: 1,
-            fillOpacity: 0.8
-        };
-        var geojsonSplice = {
-            radius: 8,
-            fillColor: "#800080",
-            color: "#000",
-            weight: 1,
-            opacity: 1,
-            fillOpacity: 0.8
-        };
-        var geojsonFAT = {
-            radius: 8,
-            fillColor: "#006400",
-            color: "#000",
-            weight: 1,
-            opacity: 1,
-            fillOpacity: 0.8
-        };
-        var geojsonMultiPort = {
-            radius: 8,
-            fillColor: "#cd5c5c",
-            color: "#000",
-            weight: 1,
-            opacity: 1,
-            fillOpacity: 0.8
-        };
-        var geojsonService = {
-            radius: 8,
-            fillColor: "#ffA500",
-            color: "#000",
-            weight: 1,
-            opacity: 1,
-            fillOpacity: 0.8
-        };
-
-        $.get("https://staging.vetro.io/api/network?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJuYW1lIjoidHJpYWwiLCJpZCI6MywiaWF0IjoxNDY3MjE3MzUwfQ.T7_Y-t9koaih5KDcJWMhA_JcmA4mfDysOtu-GH0d2Eo")
-            .done(function (data) {
+        return $.get('https://staging.vetro.io/api/network/' + planID + '/info/' + layerID + '/' + geomID  + '?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJuYW1lIjoidHJpYWwiLCJpZCI6MywiaWF0IjoxNDY3MjE3MzUwfQ.T7_Y-t9koaih5KDcJWMhA_JcmA4mfDysOtu-GH0d2Eo')
+            .done ( function (data) {
                 console.log(data);
-                for (let i = 0; i < data.length; i++) {
 
-                    data_sets.push(data[i].projects);
-                    console.log(data_sets);
-                    console.log("DATA SET:"+(i+1));
+                console.log(data.attributes);
+                let attribute_name = [];
+                let attribute_value = [];
 
-                    for (let j = 0; j < data_sets[i].length; j++) {
+                let attribute = data.attributes;
 
-                        let project = data_sets[i][j];
-                        projects.push(project);
-                        console.log(project);
+                for (let i = 0; i < attribute.length; i++) {
 
-                        console.log("PROJECT: "+(j+1));
-                        //newLayerGroup(layername);
-                        layername = project.name;
+                    if (attribute[i].name != null){
+                        attribute_name.push(attribute[i].name);
+                    }
+                    if (attribute[i].value != null){
+                        attribute_value.push(attribute[i].value);
+                    }
+                }
+                /*$('<a href="#" class = "speciallink">Add Marker</a>').click(function(){
+                 alert("Marker")})
+                 +"</br>" + */
+                console.log(data);
+                console.log(e);
+                e.layer.bindPopup("Attributes:" + "</br>" + "Names:" +
+                    JSON.stringify(attribute_name)+ "</br>"+
+                    "Values:"+JSON.stringify(attribute_value)).openPopup();
 
-                        for (let k = 0; k < project.plans.length; k++) {
-                            console.log(project.plans);
-                            console.log("PLAN: "+ (k+1));
-                            Plans.push(project.plans[k]);
-                            //Plans.push(project.plans[k]);
+            });
+    };
 
-                            if (project.plans[k].as_built = true) {
+    //Containers, this will be replaced
 
-                                $.get("https://staging.vetro.io/api/network/" + project.plans[k].id + "/geometries/?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJuYW1lIjoidHJpYWwiLCJpZCI6MywiaWF0IjoxNDY3MjE3MzUwfQ.T7_Y-t9koaih5KDcJWMhA_JcmA4mfDysOtu-GH0d2Eo")
-                                    .done(function (geom) {
+    let B_container = L.layerGroup([]);
+    let L_container = L.layerGroup([]);
+    let D_container = L.layerGroup([]);
+    let Pigtail_container = L.layerGroup([]);
 
-                                        L.geoJSON(geom[14], {
-                                            style: function (feature) {
-                                                return {color: "#ff0000"};
-                                            }
-                                        }).addTo(B_container).on('click',pointClicked);
-                                        L.geoJSON(geom[15], {
-                                            style: function (feature) {
-                                                return {color: "#0078A8"};
-                                            }
-                                        }).addTo(L_container).on('click',pointClicked);
-                                        L.geoJSON(geom[17], {
-                                            style: function (feature) {
-                                                return {color: "#3e8f3e"};
-                                            }
-                                        }).addTo(D_container).on('click',pointClicked);
-                                        L.geoJSON(geom[16], {
-                                            style: function (feature) {
-                                                return {color: "#eb9316"};
-                                            }
-                                        }).addTo(Pigtail_container).on('click',pointClicked);
+    let CO_container = L.layerGroup([]).setZIndex(0);
+    let Splice_container = L.layerGroup([]).setZIndex(3);
+    let MultiPort_container = L.layerGroup([]).setZIndex(2);
+    let FAT_container = L.layerGroup([]).setZIndex(1);
+    let Service_container = L.layerGroup([]).setZIndex(4);
 
-                                        L.geoJSON(geom[9], {
-                                            pointToLayer: function (feature,latlng){
-                                                return L.circleMarker(latlng,geojsonFAT);
-                                            }
-                                        }).addTo(FAT_container).on('click',pointClicked);
-                                        L.geoJson(geom[11], {
-                                            pointToLayer: function (feature,latlng){
-                                                return L.circleMarker(latlng,geojsonMultiPort);
-                                            }
-                                        }).addTo(MultiPort_container).on('click',pointClicked);
-                                        L.geoJSON(geom[19], {
-                                            pointToLayer: function (feature,latlng){
-                                                return L.circleMarker(latlng,geojsonSplice);
-                                            }
-                                        }).addTo(Splice_container).on('click',pointClicked);
-                                        L.geoJSON(geom[21], {
-                                            pointToLayer: function (feature,latlng){
-                                                return L.circleMarker(latlng,geojsonCO);
-                                            }
-                                        }).addTo(CO_container).on('click',pointClicked);
-                                        L.geoJSON(geom[26], {
-                                            pointToLayer: function (feature,latlng){
-                                                return L.circleMarker(latlng,geojsonService);
-                                            }
-                                        }).addTo(Service_container).on('click',pointClicked);
-                                    });
+    let projects = [];
+    let Plans = [] ;
+    let data_sets = [] ;
+    let layername ;
+    let plan_name ;
 
-                                //  Plans.push(project.plans[k]);
-                                //  });
 
-                            }
+    var geojsonCO = {
+        radius: 8,
+        fillColor: "#000080",
+        color: "#000",
+        weight: 1,
+        opacity: 1,
+        fillOpacity: 0.8
+    };
+    var geojsonSplice = {
+        radius: 8,
+        fillColor: "#800080",
+        color: "#000",
+        weight: 1,
+        opacity: 1,
+        fillOpacity: 0.8
+    };
+    var geojsonFAT = {
+        radius: 8,
+        fillColor: "#006400",
+        color: "#000",
+        weight: 1,
+        opacity: 1,
+        fillOpacity: 0.8
+    };
+    var geojsonMultiPort = {
+        radius: 8,
+        fillColor: "#cd5c5c",
+        color: "#000",
+        weight: 1,
+        opacity: 1,
+        fillOpacity: 0.8
+    };
+    var geojsonService = {
+        radius: 8,
+        fillColor: "#ffA500",
+        color: "#000",
+        weight: 1,
+        opacity: 1,
+        fillOpacity: 0.8
+    };
+
+    $.get("https://staging.vetro.io/api/network?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJuYW1lIjoidHJpYWwiLCJpZCI6MywiaWF0IjoxNDY3MjE3MzUwfQ.T7_Y-t9koaih5KDcJWMhA_JcmA4mfDysOtu-GH0d2Eo")
+        .done(function (data) {
+            console.log(data);
+            for (let i = 0; i < data.length; i++) {
+
+                data_sets.push(data[i].projects);
+                console.log(data_sets);
+                console.log("DATA SET:"+(i+1));
+
+                for (let j = 0; j < data_sets[i].length; j++) {
+
+                    let project = data_sets[i][j];
+                    projects.push(project);
+                    console.log(project);
+
+                    console.log("PROJECT: "+(j+1));
+                    //newLayerGroup(layername);
+                    layername = project.name;
+
+                    var list = document.getElementById('testing');
+                    document.getElementsByClassName('projects').innerHTML = layername;
+                    var entry = document.createElement('li');
+                    entry.appendChild(document.createTextNode(layername));
+                    list.appendChild(entry);
+
+                    for (let k = 0; k < project.plans.length; k++) {
+                        console.log(project.plans);
+                        console.log("PLAN: "+ (k+1));
+                        Plans.push(project.plans[k]);
+
+                        plan_name = project.plans[k].name;
+
+                        /*                          var planlist = document.getElementById('demoplan');
+                         document.getElementsByClassName('plan_name').innerHTMl = plan_name;
+                         var plan_entry = document.createElement('option');
+                         plan_entry.appendChild(document.createTextNode(plan_name));
+                         planlist.appendChild(plan_entry);
+                         */
+
+                        if (project.plans[k].as_built = true) {
+
+                            $.get("https://staging.vetro.io/api/network/" + project.plans[k].id + "/geometries/?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJuYW1lIjoidHJpYWwiLCJpZCI6MywiaWF0IjoxNDY3MjE3MzUwfQ.T7_Y-t9koaih5KDcJWMhA_JcmA4mfDysOtu-GH0d2Eo")
+                                .done(function (geom) {
+
+                                    L.geoJSON(geom[14], {
+                                        style: function (feature) {
+                                            return {color: "#ff0000",
+                                            };
+
+                                        }
+                                    }).addTo(B_container).on('click',pointClicked);
+                                    L.geoJSON(geom[15], {
+                                        style: function (feature) {
+                                            return {color: "#0078A8",
+                                            };
+                                        }
+                                    }).addTo(L_container).on('click',pointClicked);
+                                    L.geoJSON(geom[17], {
+                                        style: function (feature) {
+                                            return {color: "#3e8f3e",
+                                            };
+                                        }
+                                    }).addTo(D_container).on('click',pointClicked);
+
+                                    /* L.geoJSON(geom[16], {
+                                     style: function (feature) {
+                                     return {color: "#eb9316",
+                                     };
+                                     }
+                                     }).addTo(Pigtail_container).on('click',pointClicked);
+                                     */
+                                    L.geoJSON(geom[9], {
+                                        pointToLayer: function (feature,latlng){
+                                            return L.circleMarker(latlng,geojsonFAT);
+                                        }
+                                    }).addTo(FAT_container).on('click',pointClicked);
+                                    L.geoJson(geom[11], {
+                                        pointToLayer: function (feature,latlng){
+                                            return L.circleMarker(latlng,geojsonMultiPort);
+                                        }
+                                    }).addTo(MultiPort_container).on('click',pointClicked);
+                                    L.geoJSON(geom[19], {
+                                        pointToLayer: function (feature,latlng){
+                                            return L.circleMarker(latlng,geojsonSplice);
+                                        }
+                                    }).addTo(Splice_container).on('click',pointClicked);
+                                    L.geoJSON(geom[21], {
+                                        pointToLayer: function (feature,latlng){
+                                            return L.circleMarker(latlng,geojsonCO);
+                                        }
+                                    }).addTo(CO_container).on('click',pointClicked);
+                                    L.geoJSON(geom[26], {
+                                        pointToLayer: function (feature,latlng){
+                                            return L.circleMarker(latlng,geojsonService);
+                                        }
+                                    }).addTo(Service_container).on('click',pointClicked);
+                                });
+
+                            //  Plans.push(project.plans[k]);
+                            //  });
+
                         }
                     }
                 }
+            }
 
-                console.log("FINISHED");
-                console.log(Plans);
+            console.log("FINISHED");
+            console.log(Plans);
 
-            });
+        });
 
 
-        let Backbone_overlay = {
-            "Backbone" : B_container,
-            "Lateral" : L_container,
-            "Drop" : D_container,
-            "Pigtail" : Pigtail_container,
+    let Backbone_overlay = {
+        "Backbone" : B_container,
+        "Lateral" : L_container,
+        "Drop" : D_container,
+        "Pigtail" : Pigtail_container,
 
-        };
-        let CO_overlay = {
-            "CO" : CO_container,
-            "Splice" : Splice_container,
-            "MultiPort": MultiPort_container,
-            "FAT" : FAT_container,
-            "Service Location": Service_container,
-        };
-        let Basemaps = {
-            "BaseMap" : BaseMap,
-            "Satelilte": Satellite,
-        };
+    };
+    let CO_overlay = {
+        "CO" : CO_container,
+        "Splice" : Splice_container,
+        "MultiPort": MultiPort_container,
+        "FAT" : FAT_container,
+        "Service Location": Service_container,
+    };
+    let Basemaps = {
+        "BaseMap" : BaseMap,
+        "Satelilte": Satellite,
+    };
 
-        L.control.layers(Basemaps,null).addTo(map);
-        L.control.layers(null,Backbone_overlay).addTo(map);
-        L.control.layers(null,CO_overlay).addTo(map);
+    function addMarkers(){
+        var selectedBox = document.getElementById('markers');
+        var selectedValue = selectedBox[selectedBox.selectedIndex].value;
 
-        //Search Controls
 
-        var arcgisOnline = L.esri.Geocoding.arcgisOnlineProvider();
+        if (selectedValue == 1 ){
 
-        var searchControl = L.esri.Geocoding.geosearch({
-            providers: [
-                arcgisOnline,
-                L.esri.Geocoding.featureLayerProvider({
-                    url: 'https://services.arcgis.com/uCXeTVveQzP4IIcx/arcgis/rest/services/gisday/FeatureServer/0/',
-                    searchFields: ['Name', 'Organization'],
-                    label: 'GIS Day Events',
-                    bufferRadius: 5000,
-                    formatSuggestion: function(feature){
-                        return feature.properties.Name + ' - ' + feature.properties.Organization;
-                    }
-                })
-            ]
+            CO_container.addTo(map);
+            console.log("IN HERE");
+        }
+        else if (selectedValue == 2){
+            Splice_container.addTo(map);
+            console.log("HERE");
+        }
+        else if (selectedValue == 3){
+            MultiPort_container.addTo(map);
+            console.log("SHOULDNT BE HERE");
+        }
+        else if (selectedValue == 4){
+            FAT_container.addTo(map);
+            console.log("WHY HERE?");
+        }
+        else if (selectedValue == 5){
+            Service_container.addTo(map);
+            console.log("HOW HERE?");
+        }
 
-        }).addTo(map);
+    }
 
-    </script>
+    function addLines(){
+        var selectedBox = document.getElementById('line-geometries');
+        var selectedValue = selectedBox[selectedBox.selectedIndex].value;
 
-    </div>
-</div>
+        if (selectedValue == 1){
+            B_container.addTo(map);
+            console.log("IN HERE");
+        }
+        else if (selectedValue == 2){
+            L_container.addTo(map);
+            console.log("HERE");
+        }
+        else if (selectedValue == 3){
+            D_container.addTo(map);
+            console.log("IN HERE");
+        }
+    }
+
+    L.control.layers(Basemaps,null).addTo(map);
+
+
+
+    //Search Controls
+
+    var arcgisOnline = L.esri.Geocoding.arcgisOnlineProvider();
+
+    var searchControl = L.esri.Geocoding.geosearch({
+        providers: [
+            arcgisOnline,
+            L.esri.Geocoding.featureLayerProvider({
+                url: 'https://services.arcgis.com/uCXeTVveQzP4IIcx/arcgis/rest/services/gisday/FeatureServer/0/',
+                searchFields: ['Name', 'Organization'],
+                label: 'GIS Day Events',
+                bufferRadius: 5000,
+
+                formatSuggestion: function(feature){
+                    return feature.properties.Name + ' - ' + feature.properties.Organization;
+                }
+            })
+        ]
+
+    }).addTo(map);
+
+</script>
 
 </body>
 
