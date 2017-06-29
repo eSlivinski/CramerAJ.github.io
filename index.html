@@ -3,23 +3,23 @@
 <head>
     <meta charset='utf-8'/>
     <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no'/>
+
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.7.3/css/bootstrap-select.min.css" />
-    <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.2/leaflet.css" />
+    <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.2/leaflet.css"/>
 
 
-    <!-- Load Leaflet from CDN-->
+    <!-- Load Leaflet from CDN
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.3/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.0.3/dist/leaflet-src.js"></script>
 
-    <!-- Load Esri Leaflet from CDN -->
+    <!-- Load Esri Leaflet from CDN
     <script src="https://unpkg.com/esri-leaflet@2.0.8"></script>
 
-    <!-- Load Esri Leaflet Geocoder from CDN -->
+    <!-- Load Esri Leaflet Geocoder from CDN
     <link rel="stylesheet" href="https://unpkg.com/esri-leaflet-geocoder@2.2.4/dist/esri-leaflet-geocoder.css">
     <script src="https://unpkg.com/esri-leaflet-geocoder@2.2.4"></script>
-
-
+-->
     <style>
         #map {
             position: absolute;
@@ -55,9 +55,9 @@
         }
 
         #sidebar{
-            height:85%;
-            width:65%;
+            height:500px;
             z-index: 200;
+            width:70%;
         }
 
         .container{
@@ -71,6 +71,7 @@
             background-size: cover;
             background-repeat:no-repeat;
             background-position: 50% 50%;
+
         }
 
 
@@ -83,12 +84,21 @@
 <script src="./leaflet-src.js"></script>
 <script src="./leaflet.js"></script>
 
+<script src="./node_modules/bootstrap-select/dist/js/bootstrap-select.js"></script>
+
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.7.3/js/bootstrap-select.min.js"></script>
+
 <script src="./leaflet-sidebar/src/L.Control.Sidebar.js"></script>
 <link rel="stylesheet" href="./leaflet-sidebar/src/L.Control.Sidebar.css"/>
 
+
+
 <div id="headerImage" class="container">
 
-</div><!--
+</div>
+
+<!--
 <div id="quickplanroute" >
 
     <input type = "text" class="gisSearch" id="mySearch" value="" placeholder="GIS Route: 10 Somerset" >
@@ -109,18 +119,13 @@
 </div>-->
 
 <div id='map' class="leaflet-container"></div>
-
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.7.3/js/bootstrap-select.min.js"></script>
-
 <div id="sidebar" style="height: 70%;">
     <h2>Network Geometries</h2>
-    <button id="sidebarToggle" onclick="sidebar.hide()">X</button>
-    <div class="project_list">
-
+    <div style="width: 5%">
+        <button id="sidebarToggle" onclick="sidebar.hide()">Close:X</button>
+    </div>
+    <div class="project_list" style="height: 95%;" >
         <h3>Projects</h3>
-        <ol id="testing" style="font-size: medium"></ol>
-
         <div class="dropdown">
 
             <select id="line-geometries" class="selectpicker" onchange="addLines()" multiple name="test multiselect" title="Line Geometries"  >
@@ -128,6 +133,7 @@
                 <option value ="2" id = "Lateral" >Lateral</option>
                 <option value ="3" id = "Drop" >Drop</option>
             </select>
+            <button id = "Clearlines" onclick="clearLines()">Clear Lines</button>
 
             <select id="markers" class="selectpicker" onchange="addMarkers()" name="test multiselect" title="Markers" multiple >
                 <option value ="1" id = "CO" >CO</option>
@@ -136,6 +142,7 @@
                 <option value ="4" id = "FAT" >FAT</option>
                 <option value ="5" id = "ServiceLocation" >Service Location</option>
             </select>
+            <button id = "Clearmarkers" onclick="clearMarkers()">Clear Markers</button>
 
         </div>
     </div>
@@ -235,9 +242,10 @@
     let projects = [];
     let Plans = [] ;
     let data_sets = [] ;
-    let layername ;
+    let project_name ;
     let plan_name ;
 
+    let plan_ids = [];
 
     var geojsonCO = {
         radius: 8,
@@ -296,14 +304,30 @@
                     console.log(project);
 
                     console.log("PROJECT: "+(j+1));
-                    //newLayerGroup(layername);
-                    layername = project.name;
+                    project_name = project.name;
 
-                    var list = document.getElementById('testing');
-                    document.getElementsByClassName('projects').innerHTML = layername;
-                    var entry = document.createElement('li');
-                    entry.appendChild(document.createTextNode(layername));
-                    list.appendChild(entry);
+                    /*         var list = document.getElementById('testing');
+                     document.getElementsByClassName('projects').innerHTML = layername;
+                     var entry = document.createElement('li');
+                     entry.appendChild(document.createTextNode(layername));
+                     list.appendChild(entry);
+                     */
+                    var parent = document.querySelector('.project_list');
+                    var child = document.createElement('div');
+                    var select = document.createElement('form');
+
+                    child.innerHTML =''+project_name;
+
+                    parent.appendChild(child);
+
+                    select.id = 'select_'+project_name;
+                    select.title = 'Plans:';
+                    //select.setAttribute('class','selectpicker');
+                    select.name = 'test multiselect';
+                    select.setAttribute('onchange','toggle()');
+
+
+                    child.appendChild(select);
 
                     for (let k = 0; k < project.plans.length; k++) {
                         console.log(project.plans);
@@ -312,14 +336,26 @@
 
                         plan_name = project.plans[k].name;
 
-                        /*                          var planlist = document.getElementById('demoplan');
-                         document.getElementsByClassName('plan_name').innerHTMl = plan_name;
-                         var plan_entry = document.createElement('option');
-                         plan_entry.appendChild(document.createTextNode(plan_name));
-                         planlist.appendChild(plan_entry);
-                         */
+                        var option = document.createElement('input');
+                        var label = document.createElement('label');
+                        var br = document.createElement('br');
+
+                        option.type = "checkbox";
+                        option.value = ""+plan_name+(k+1);
+                        option.id = ""+(k+1);
+
+                        plan_ids.push(plan_name+(k+1));
+
+                        label.value = ''+plan_name;
+                        label.innerHTML = plan_name + "</label>"+ '&nbsp;';
+
+                        child.appendChild(label);
+                        child.appendChild(option);
+                        child.appendChild(br);
 
                         if (project.plans[k].as_built = true) {
+
+                            new L.layerGroup([]);
 
                             $.get("https://staging.vetro.io/api/network/" + project.plans[k].id + "/geometries/?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJuYW1lIjoidHJpYWwiLCJpZCI6MywiaWF0IjoxNDY3MjE3MzUwfQ.T7_Y-t9koaih5KDcJWMhA_JcmA4mfDysOtu-GH0d2Eo")
                                 .done(function (geom) {
@@ -328,7 +364,6 @@
                                         style: function (feature) {
                                             return {color: "#ff0000",
                                             };
-
                                         }
                                     }).addTo(B_container).on('click',pointClicked);
                                     L.geoJSON(geom[15], {
@@ -388,28 +423,16 @@
 
             console.log("FINISHED");
             console.log(Plans);
-
+            console.log(plan_ids);
         });
 
 
-    let Backbone_overlay = {
-        "Backbone" : B_container,
-        "Lateral" : L_container,
-        "Drop" : D_container,
-        "Pigtail" : Pigtail_container,
 
-    };
-    let CO_overlay = {
-        "CO" : CO_container,
-        "Splice" : Splice_container,
-        "MultiPort": MultiPort_container,
-        "FAT" : FAT_container,
-        "Service Location": Service_container,
-    };
     let Basemaps = {
         "BaseMap" : BaseMap,
         "Satelilte": Satellite,
     };
+    L.control.layers(Basemaps,null).addTo(map);
 
     function addMarkers(){
         var selectedBox = document.getElementById('markers');
@@ -439,7 +462,6 @@
         }
 
     }
-
     function addLines(){
         var selectedBox = document.getElementById('line-geometries');
         var selectedValue = selectedBox[selectedBox.selectedIndex].value;
@@ -458,10 +480,24 @@
         }
     }
 
-    L.control.layers(Basemaps,null).addTo(map);
+    function clearLines(){
+        // map.removeLayer(map.layerGroup(B_container,L_container,D_container));
+        map.removeLayer(B_container);
+        map.removeLayer(L_container);
+        map.removeLayer(D_container);
+        console.log("Removed Line Geoms");
+    }
+    function clearMarkers(){
+        map.removeLayer(Splice_container);
+        map.removeLayer(FAT_container);
+        map.removeLayer(CO_container);
+        map.removeLayer(MultiPort_container);
+        console.log('Removed Marker Geoms');
+    }
 
+    function toggle(){
 
-
+    }
     //Search Controls
 
     var arcgisOnline = L.esri.Geocoding.arcgisOnlineProvider();
