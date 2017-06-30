@@ -244,6 +244,8 @@
     let plan_name ;
     let plan_ids = [];
 
+    let planLayers = {}; // Object storing plan layers index by the planIndex value
+
     let geojsonCO = {
         radius: 8,
         fillColor: "#000080",
@@ -290,6 +292,7 @@
     $.get("https://staging.vetro.io/api/network?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJuYW1lIjoidHJpYWwiLCJpZCI6MywiaWF0IjoxNDY3MjE3MzUwfQ.T7_Y-t9koaih5KDcJWMhA_JcmA4mfDysOtu-GH0d2Eo")
         .done(function (data) {
             console.log(data);
+            var planIndex = 0; // unique plan index for each plan -- used as key for planlayers
 
             for (let i = 0; i < data.length; i++) {
 
@@ -340,28 +343,18 @@
 //                            $option.click(function(){
 //
 //                            });
-
+                        console.log(plan_layer)
                         option.type = "checkbox";
-                        option.name = plan_layer._leaflet_id;
                         option.value = ""+plan_name;
                         option.id = ""+(k+1);
-                        // console.log(`input[type="checkbox"][ value="${plan_name}"]`);
-                        $('input[type="checkbox"][name="'+plan_layer._leaflet_id+'"]').change(function toggle() {
-                            //$(`input[type="checkbox"]`).change(function toggle() {
+                        option.name = planIndex;
 
-                            if (map.hasLayer(plan_layer)){
-                                console.log('remove'+plan_layer._leaflet_id);
+                        planLayers[planIndex] = plan_layer; // store plan layer for easy lookup
 
-                                map.removeLayer(plan_layer);
-                            }
-                            else {
-                                console.log("add"+plan_layer._leaflet_id);
-                                map.addLayer(plan_layer);
-                                //map.removeLayer();
-                            }
-                            console.log('MAP');
+                        planIndex++; // increment unique plan index
 
-                        });
+
+                        // console.log(`input[type="checkbox"][ value="${plan_name}"]`
 
 
                         plan_ids.push(plan_name+(k+1));
@@ -446,6 +439,20 @@
             //console.log(Plans);
             console.log(allLayers);
             //console.log(plan_ids);
+        })
+        .then(function() {
+            $('input[type="checkbox"]').change(function () {
+                let planIndex = $(this).attr('name'),
+                    planLayer = planLayers[planIndex];
+
+                if (map.hasLayer(planLayer)){
+                    console.log('remove'+planLayer);
+                    map.removeLayer(planLayer);
+                } else {
+                    console.log("add"+planLayer);
+                    map.addLayer(planLayer);
+                }
+            });
         });
 
     let Basemaps = {
