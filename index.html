@@ -24,7 +24,7 @@
         #map {
             position: absolute;
             width: 100%;
-            height: 95%;
+            height: 100%;
             bottom:0;
             right:0;
             left:0;
@@ -91,11 +91,9 @@
 <script src="./leaflet-sidebar/src/L.Control.Sidebar.js"></script>
 <link rel="stylesheet" href="./leaflet-sidebar/src/L.Control.Sidebar.css"/>
 
+<!--<div id="headerImage" class="container">
 
-
-<div id="headerImage" class="container">
-
-</div>
+</div>-->
 
 <!--
 <div id="quickplanroute" >
@@ -118,7 +116,7 @@
 </div>-->
 
 <div id='map' class="leaflet-container"></div>
-<div id="sidebar" style="height: 70%;">
+<div id="sidebar" style="height: 70%; width: 85%;">
     <h2>Network Geometries</h2>
     <div style="width: 5%">
         <button id="sidebarToggle" onclick="sidebar.hide()">Close:X</button>
@@ -149,22 +147,23 @@
 <script>
 
     //Creates the basemap
-    var map = L.map('map').setView([43.6515, -70.2553], 14);
+    let map = L.map('map').setView([43.6515, -70.2553], 14);
     //Portland 43.6515, -70.2553
-    var BaseMap =   L.tileLayer( "https://{s}.tiles.mapbox.com/v3/nbtsolutions.ilgj9mfe/{z}/{x}/{y}.png", {
+    let BaseMap =   L.tileLayer( "https://{s}.tiles.mapbox.com/v3/nbtsolutions.ilgj9mfe/{z}/{x}/{y}.png", {
         subdomains: 'abcd',
         maxZoom: 19
     }).addTo(map);
     // Additional Basemaps
-    var Satellite = L.tileLayer("https://{s}.tiles.mapbox.com/v3/nbtsolutions.jbn3ge2f/{z}/{x}/{y}.png", {
+    let Satellite = L.tileLayer("https://{s}.tiles.mapbox.com/v3/nbtsolutions.jbn3ge2f/{z}/{x}/{y}.png", {
         subdomains: 'abcd',
         maxZoom: 19
     });
     //Sidebar
-    var sidebar = L.control.sidebar('sidebar', {
+    let sidebar = L.control.sidebar('sidebar', {
         position: 'left'
     });
     map.addControl(sidebar);
+
     map.on('click', function () {
         sidebar.show();
     });
@@ -184,12 +183,12 @@
     L.DomEvent.on(sidebar.getCloseButton(), 'click', function () {
         console.log('Close button clicked.');
     });
-    var pointClicked = function (e) {
-        var singleInfo = e.layer.feature.properties;
-        var planID = singleInfo.planID;
-        var layerID = singleInfo.layerID;
-        var geomID = singleInfo.geomID;
-        var customOptions = {
+    let pointClicked = function (e) {
+        let singleInfo = e.layer.feature.properties;
+        let planID = singleInfo.planID;
+        let layerID = singleInfo.layerID;
+        let geomID = singleInfo.geomID;
+        let customOptions = {
             'maxWidth': '500',
             'className': 'custom'
         };
@@ -243,10 +242,9 @@
     let data_sets = [] ;
     let project_name ;
     let plan_name ;
-
     let plan_ids = [];
 
-    var geojsonCO = {
+    let geojsonCO = {
         radius: 8,
         fillColor: "#000080",
         color: "#000",
@@ -254,7 +252,7 @@
         opacity: 1,
         fillOpacity: 0.8
     };
-    var geojsonSplice = {
+    let geojsonSplice = {
         radius: 8,
         fillColor: "#800080",
         color: "#000",
@@ -262,7 +260,7 @@
         opacity: 1,
         fillOpacity: 0.8
     };
-    var geojsonFAT = {
+    let geojsonFAT = {
         radius: 8,
         fillColor: "#006400",
         color: "#000",
@@ -270,7 +268,7 @@
         opacity: 1,
         fillOpacity: 0.8
     };
-    var geojsonMultiPort = {
+    let geojsonMultiPort = {
         radius: 8,
         fillColor: "#cd5c5c",
         color: "#000",
@@ -278,7 +276,7 @@
         opacity: 1,
         fillOpacity: 0.8
     };
-    var geojsonService = {
+    let geojsonService = {
         radius: 8,
         fillColor: "#ffA500",
         color: "#000",
@@ -287,15 +285,19 @@
         fillOpacity: 0.8
     };
 
+    let allLayers = L.layerGroup([]);
+
     $.get("https://staging.vetro.io/api/network?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJuYW1lIjoidHJpYWwiLCJpZCI6MywiaWF0IjoxNDY3MjE3MzUwfQ.T7_Y-t9koaih5KDcJWMhA_JcmA4mfDysOtu-GH0d2Eo")
         .done(function (data) {
             console.log(data);
+
             for (let i = 0; i < data.length; i++) {
 
                 data_sets.push(data[i].projects);
                 console.log(data_sets);
                 console.log("DATA SET:"+(i+1));
 
+                let layer_groups = new L.layerGroup([]);
                 for (let j = 0; j < data_sets[i].length; j++) {
 
                     let project = data_sets[i][j];
@@ -305,28 +307,22 @@
                     console.log("PROJECT: "+(j+1));
                     project_name = project.name;
 
-                    /*         var list = document.getElementById('testing');
-                     document.getElementsByClassName('projects').innerHTML = layername;
-                     var entry = document.createElement('li');
-                     entry.appendChild(document.createTextNode(layername));
-                     list.appendChild(entry);
-                     */
-                    var parent = document.querySelector('.project_list');
-                    var child = document.createElement('div');
-                    var select = document.createElement('form');
+
+                    let parent = document.querySelector('.project_list');
+                    let child = document.createElement('div');
+                    let form = document.createElement('form');
 
                     child.innerHTML =''+project_name;
-
+                    child.id = ''+project_name+(j+1);
                     parent.appendChild(child);
 
-                    select.id = 'select_'+project_name;
-                    select.title = 'Plans:';
-                    //select.setAttribute('class','selectpicker');
-                    select.name = 'test multiselect';
-                    select.setAttribute('onchange','toggle()');
+                    form.id = 'select_'+project_name;
+                    form.title = 'Plans:';
+
+                    child.appendChild(form);
 
 
-                    child.appendChild(select);
+                    let project_layer = new L.layerGroup([]);
 
                     for (let k = 0; k < project.plans.length; k++) {
                         console.log(project.plans);
@@ -335,13 +331,38 @@
 
                         plan_name = project.plans[k].name;
 
-                        var option = document.createElement('input');
-                        var label = document.createElement('label');
-                        var br = document.createElement('br');
+                        let plan_layer = new L.layerGroup([]);
+
+                        let option = document.createElement('input');
+                        let label = document.createElement('label');
+                        let br = document.createElement('br');
+//                            var $option = $("<input>",{id:plan_name+(k+1),});
+//                            $option.click(function(){
+//
+//                            });
 
                         option.type = "checkbox";
-                        option.value = ""+plan_name+(k+1);
+                        option.name = plan_layer._leaflet_id;
+                        option.value = ""+plan_name;
                         option.id = ""+(k+1);
+                        // console.log(`input[type="checkbox"][ value="${plan_name}"]`);
+                        $('input[type="checkbox"][name="'+plan_layer._leaflet_id+'"]').change(function toggle() {
+                            //$(`input[type="checkbox"]`).change(function toggle() {
+
+                            if (map.hasLayer(plan_layer)){
+                                console.log('remove'+plan_layer._leaflet_id);
+
+                                map.removeLayer(plan_layer);
+                            }
+                            else {
+                                console.log("add"+plan_layer._leaflet_id);
+                                map.addLayer(plan_layer);
+                                //map.removeLayer();
+                            }
+                            console.log('MAP');
+
+                        });
+
 
                         plan_ids.push(plan_name+(k+1));
 
@@ -354,7 +375,7 @@
 
                         if (project.plans[k].as_built = true) {
 
-                            new L.layerGroup([]);
+
 
                             $.get("https://staging.vetro.io/api/network/" + project.plans[k].id + "/geometries/?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJuYW1lIjoidHJpYWwiLCJpZCI6MywiaWF0IjoxNDY3MjE3MzUwfQ.T7_Y-t9koaih5KDcJWMhA_JcmA4mfDysOtu-GH0d2Eo")
                                 .done(function (geom) {
@@ -364,68 +385,68 @@
                                             return {color: "#ff0000",
                                             };
                                         }
-                                    }).addTo(B_container).on('click',pointClicked);
+                                    }).addTo(B_container).addTo(plan_layer).on('click',pointClicked);
                                     L.geoJSON(geom[15], {
-                                        style: function (feature) {
+                                        style: function () {
                                             return {color: "#0078A8",
                                             };
                                         }
-                                    }).addTo(L_container).on('click',pointClicked);
+                                    }).addTo(L_container).addTo(plan_layer).on('click',pointClicked);
                                     L.geoJSON(geom[17], {
-                                        style: function (feature) {
+                                        style: function () {
                                             return {color: "#3e8f3e",
                                             };
                                         }
-                                    }).addTo(D_container).on('click',pointClicked);
-
+                                    }).addTo(D_container).addTo(plan_layer).on('click',pointClicked);
                                     /* L.geoJSON(geom[16], {
                                      style: function (feature) {
                                      return {color: "#eb9316",
                                      };
                                      }
-                                     }).addTo(Pigtail_container).on('click',pointClicked);
-                                     */
+                                     }).addTo(Pigtail_container).on('click',pointClicked);*/
                                     L.geoJSON(geom[9], {
                                         pointToLayer: function (feature,latlng){
                                             return L.circleMarker(latlng,geojsonFAT);
                                         }
-                                    }).addTo(FAT_container).on('click',pointClicked);
+                                    }).addTo(FAT_container).addTo(plan_layer).on('click',pointClicked);
                                     L.geoJson(geom[11], {
                                         pointToLayer: function (feature,latlng){
                                             return L.circleMarker(latlng,geojsonMultiPort);
                                         }
-                                    }).addTo(MultiPort_container).on('click',pointClicked);
+                                    }).addTo(MultiPort_container).addTo(plan_layer).on('click',pointClicked);
                                     L.geoJSON(geom[19], {
                                         pointToLayer: function (feature,latlng){
                                             return L.circleMarker(latlng,geojsonSplice);
                                         }
-                                    }).addTo(Splice_container).on('click',pointClicked);
+                                    }).addTo(Splice_container).addTo(plan_layer).on('click',pointClicked);
                                     L.geoJSON(geom[21], {
                                         pointToLayer: function (feature,latlng){
                                             return L.circleMarker(latlng,geojsonCO);
                                         }
-                                    }).addTo(CO_container).on('click',pointClicked);
+                                    }).addTo(CO_container).addTo(plan_layer).on('click',pointClicked);
                                     L.geoJSON(geom[26], {
                                         pointToLayer: function (feature,latlng){
                                             return L.circleMarker(latlng,geojsonService);
                                         }
-                                    }).addTo(Service_container).on('click',pointClicked);
+                                    }).addTo(Service_container).addTo(plan_layer).on('click',pointClicked);
+
                                 });
-
-                            //  Plans.push(project.plans[k]);
-                            //  });
-
+                            plan_layer.addTo(project_layer);
                         }
+                        console.log(plan_layer);
+                        //console.log('plans');
                     }
+                    project_layer.addTo(layer_groups);
+                    //console.log(project_layer+"projects");
                 }
+                //console.log(layer_groups + "layergroups");
+                layer_groups.addTo(allLayers);
             }
-
-            console.log("FINISHED");
-            console.log(Plans);
-            console.log(plan_ids);
+            //console.log("FINISHED");
+            //console.log(Plans);
+            console.log(allLayers);
+            //console.log(plan_ids);
         });
-
-
 
     let Basemaps = {
         "BaseMap" : BaseMap,
@@ -491,33 +512,36 @@
         map.removeLayer(FAT_container);
         map.removeLayer(CO_container);
         map.removeLayer(MultiPort_container);
+        map.removeLayer(Service_container);
         console.log('Removed Marker Geoms');
     }
 
     function toggle(){
 
+        console.log("TOGGLE");
+        //element.checked = !element.checked;
+
     }
+
     //Search Controls
+    //
+    //        var arcgisOnline = L.esri.Geocoding.arcgisOnlineProvider();
+    //        var searchControl = L.esri.Geocoding.geosearch({
+    //            providers: [
+    //                arcgisOnline,
+    //                L.esri.Geocoding.featureLayerProvider({
+    //                    url: 'https://services.arcgis.com/uCXeTVveQzP4IIcx/arcgis/rest/services/gisday/FeatureServer/0/',
+    //                    searchFields: ['Name', 'Organization'],
+    //                    label: 'GIS Day Events',
+    //                    bufferRadius: 5000,
+    //
+    //                    formatSuggestion: function(feature){
+    //                        return feature.properties.Name + ' - ' + feature.properties.Organization;
+    //                    }
+    //                })
+    //            ]
+    //        }).addTo(map);
 
-    var arcgisOnline = L.esri.Geocoding.arcgisOnlineProvider();
-
-   /* var searchControl = L.esri.Geocoding.geosearch({
-        providers: [
-            arcgisOnline,
-            L.esri.Geocoding.featureLayerProvider({
-                url: 'https://services.arcgis.com/uCXeTVveQzP4IIcx/arcgis/rest/services/gisday/FeatureServer/0/',
-                searchFields: ['Name', 'Organization'],
-                label: 'GIS Day Events',
-                bufferRadius: 5000,
-
-                formatSuggestion: function(feature){
-                    return feature.properties.Name + ' - ' + feature.properties.Organization;
-                }
-            })
-        ]
-
-    }).addTo(map);
-*/
 </script>
 
 </body>
